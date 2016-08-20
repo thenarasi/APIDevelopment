@@ -25,6 +25,12 @@ $app = new Laravel\Lumen\Application(
 
 $app->withFacades();
 
+class_exists('JWTAuth') or class_alias(Tymon\JWTAuth\Facades\JWTAuth::class, 'JWTAuth');
+class_exists('JWTFactory') or class_alias(Tymon\JWTAuth\Facades\JWTFactory::class, 'JWTFactory');
+$app->alias('cache', 'Illuminate\Cache\CacheManager');
+$app->configure('auth');
+$app->configure('jwt');
+
 $app->withEloquent();
 
 /*
@@ -48,6 +54,15 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->singleton(
+    Illuminate\Contracts\Routing\ResponseFactory::class,
+    Illuminate\Routing\ResponseFactory::class
+);
+
+$app->singleton(Illuminate\Auth\AuthManager::class, function ($app) {
+    return $app->make('auth');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -63,9 +78,10 @@ $app->singleton(
 //    App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+ $app->routeMiddleware([
+     'jwt.auth'    => Tymon\JWTAuth\Http\Middleware\Check::class,
+     'jwt.refresh' => Tymon\JWTAuth\Http\Middleware\RefreshToken::class
+ ]);
 
 /*
 |--------------------------------------------------------------------------
@@ -79,8 +95,10 @@ $app->singleton(
 */
 
 // $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+
+$app->register('Tymon\JWTAuth\Providers\LumenServiceProvider');
 
 /*
 |--------------------------------------------------------------------------

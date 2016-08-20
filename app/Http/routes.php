@@ -14,10 +14,13 @@
 $app->get('/', function () use ($app) {
     return $app->version();
 });
-$app->group(['prefix' => 'api/v1','namespace' => 'App\Http\Controllers'], function($app)
+
+$app->post('auth/login', 'AuthenticateController@postLogin');
+    
+$app->group(['prefix' => 'api/v1','namespace' => 'App\Http\Controllers', 'middleware' => ['jwt.auth', 'jwt.refresh']], function($app)
 {
 	$app->get('user','UserController@index');
-
+	
 	$app->get('user/{id}','UserController@getUser');
 
 	$app->post('user','UserController@createUser');

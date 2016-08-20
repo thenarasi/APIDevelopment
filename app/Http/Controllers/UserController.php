@@ -14,6 +14,8 @@ class UserController extends Controller
 		return response ()->json ( $users );
 	}
 	public function getUser($id) {
+	    
+	    print_r($id);
 		$user = User::find ( $id );
 		
 		return response ()->json ( $user );
@@ -35,7 +37,6 @@ class UserController extends Controller
 		$user = User::find ( $id );
 		$user->name = $request->input ( 'name' );
 		$user->email = $request->input ( 'email' );
-		$user->mobile = $request->input ( 'mobile' );
 		$user->save ();
 		print_r($user);
 		
